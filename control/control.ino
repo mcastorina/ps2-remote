@@ -19,11 +19,21 @@
 #define BUTTON_PIN      10      // Button input (negative logic)
 #define POT_ADDR        0x3e    // I2C address of digital potentiometer
 
+void reset(void);
+void power_off(void);
+
+/* Map of IR code to function call */
+static struct {
+    long ir_code;
+    void (*fn)(void);
+} ir_map[] = {
+    {0, reset},
+    {0, power_off},
+    {0, NULL}
+};
+
 IRrecv irrecv(RECV_PIN);
 decode_results results; // IR Input
-long remote_value;      // IR Code
-
-static boolean pressed;
 
 /*
  * Initialize IR receiver, I2C, and button input.
@@ -39,32 +49,32 @@ void setup() {
     Wire.begin();
     /* Button for recording IR code */
     pinMode(BUTTON_PIN, INPUT_PULLUP);
-    /* Set code to value in EEPROM */
-    remote_value = get_value();
-
-    pressed = false;
+#ifdef DEBUG
+    /* Make sure the number of codes we have fits in EEPROM */
+    if (sizeof(ir_map) / sizeof(ir_map[0])-1 > EEPROM.length() * sizeof(long)) {
+        Serial.println("Warning: ir_map exceeds EEPROM length");
+    }
+#endif /* DEBUG */
+    /* Set codes to value in EEPROM */
+    get_values();
 }
 
 /*
- * If button was pressed, update the code.
- * If we got an IR code, check against remote_value and press button.
- * If we pressed the button in the last iteration, unpress it.
+ * If button was pressed, update the codes.
+ * If we got an IR code, check against ir_map and call function.
  */
 void loop() {
     if (!digitalRead(BUTTON_PIN))
-        update_code();
+        update_codes();
     if (irrecv.decode(&results)) {
         long code = get_code(&results);
-        if (code == remote_value) {
-            pressed = true;
-            press_button(true);
+        for (int index = 0; ir_map[index].fn != NULL; index++) {
+            if (code == ir_map[index].ir_code) {
+                ir_map[index].fn();
+            }
         }
         delay(100);
         irrecv.resume();
-    }
-    else if (pressed) {
-        pressed = false;
-        press_button(false);
     }
 }
 
@@ -75,8 +85,8 @@ void loop() {
 void press_button(boolean down) {
     int val = 0xff * down;  // low val = high resistance
     Wire.beginTransmission(POT_ADDR);
-    Wire.write(0);      // command
-    Wire.write(val);    // data (0x00 - 0xff)
+    Wire.write(0);          // command
+    Wire.write(val);        // data (0x00 - 0xff)
     Wire.endTransmission();
 #ifdef DEBUG
     Serial.print("press_button: ");
@@ -87,46 +97,57 @@ void press_button(boolean down) {
 /*
  * Updates the IR code to listen for.
  */
-void update_code() {
+void update_codes() {
 #ifdef DEBUG
-    Serial.println("updating code");
+    Serial.println("updating codes");
 #endif /* DEBUG */
-    while (!irrecv.decode(&results));   // Wait for signal
-    remote_value = get_code(&results);
-    set_value(remote_value);            // Store result
-    delay(100);
-    irrecv.resume();
+    for (int index = 0; ir_map[index].fn != NULL; index++) {
+        while (!irrecv.decode(&results));           // Wait for signal
+        long val = get_code(&results);
+        ir_map[index].ir_code = val;
+        set_value(index, ir_map[index].ir_code);    // Store result
+        delay(100);
+        irrecv.resume();
 #ifdef DEBUG
-    Serial.print("update_code: ");
-    Serial.println(remote_value, HEX);
+        Serial.print("update_code ");
+        Serial.print(index);
+        Serial.print(": ");
+        Serial.println(val, HEX);
 #endif /* DEBUG */
+    }
 }
 
 /*
- * Gets the value stored in EEPROM.
+ * Gets the values stored in EEPROM, and populates ir_map.
  */
-long get_value() {
-    long val = 0;
-    for (int i = 0; i < sizeof(long); ++i) {
-        int offset = (i << 3);
-        byte n = EEPROM.read(i);
-        val |= ((long)n << offset);
-    }
+void get_values() {
+    for (int index = 0; ir_map[index].fn != NULL; index++) {
+        long val = 0;
+        for (int i = 0; i < sizeof(long) &&
+                        i + index * sizeof(long) < EEPROM.length(); ++i) {
+            int offset = (i << 3);
+            byte n = EEPROM.read(i + index * sizeof(long));
+            val |= ((long)n << offset);
+        }
+        ir_map[index].ir_code = val;
 #ifdef DEBUG
-    Serial.print("get_value: ");
-    Serial.println(val);
+        Serial.print("get_value: ");
+        Serial.print(index);
+        Serial.print(", ");
+        Serial.println(val, HEX);
 #endif /* DEBUG */
-    return val;
+    }
 }
 
 /*
  * Sets the value stored in EEPROM.
  */
-void set_value(long val) {
-    for (int i = 0; i < sizeof(long); ++i) {
+void set_value(int index, long val) {
+    for (int i = 0; i < sizeof(long) &&
+                    i + index * sizeof(long) < EEPROM.length(); ++i) {
         int offset = (i << 3);
         byte n = (val & (0xffL << offset)) >> offset;
-        EEPROM.write(i, n);
+        EEPROM.write(i + index * sizeof(long), n);
     }
 #ifdef DEBUG
     Serial.print("set_value: ");
@@ -144,4 +165,22 @@ long get_code(decode_results *ptr) {
     Serial.println(val, HEX);
 #endif /* DEBUG */
     return val;
+}
+
+/*
+ * PS2 reset is a quick press.
+ */
+void reset(void) {
+    press_button(true);
+    delay(100);
+    press_button(false);
+}
+
+/*
+ * PS2 power off is a press and hold.
+ */
+void power_off(void) {
+    press_button(true);
+    delay(2500);
+    press_button(false);
 }
