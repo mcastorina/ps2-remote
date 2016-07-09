@@ -14,7 +14,7 @@ Arduino Libraries:
 * [Arduino-IRremote](https://github.com/shirriff/Arduino-IRremote)
 
 ##Status
-- [ ] Working prototype on breadboard
+- [x] Working prototype on breadboard
 - [ ] Transfer off of Arduino board
 - [ ] Design PCB
 - [ ] Etch PCB
