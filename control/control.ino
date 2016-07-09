@@ -136,12 +136,7 @@ void set_value(long val) {
  * Records the code from the IR receiver.
  */
 long get_code(decode_results *ptr) {
-    int codeLen = ptr->rawlen - 1;
-    long val = 0;
-    for (int i = 2; i <= codeLen; i+=2) {
-        boolean v = (ptr->rawbuf[i]*USECPERTICK >= 1100);
-        val |= (v << (i-2)/2);
-    }
+    long val = ptr->value;
 #ifdef DEBUG
     Serial.print("get_code: ");
     Serial.println(val);
