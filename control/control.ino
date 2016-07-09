@@ -98,7 +98,7 @@ void update_code() {
     irrecv.resume();
 #ifdef DEBUG
     Serial.print("update_code: ");
-    Serial.println(remote_value);
+    Serial.println(remote_value, HEX);
 #endif /* DEBUG */
 }
 
@@ -109,7 +109,8 @@ long get_value() {
     long val = 0;
     for (int i = 0; i < sizeof(long); ++i) {
         int offset = (i << 3);
-        val |= (EEPROM.read(i) << offset);
+        byte n = EEPROM.read(i);
+        val |= ((long)n << offset);
     }
 #ifdef DEBUG
     Serial.print("get_value: ");
@@ -124,11 +125,12 @@ long get_value() {
 void set_value(long val) {
     for (int i = 0; i < sizeof(long); ++i) {
         int offset = (i << 3);
-        EEPROM.write(i, (val & (0xff << offset)) >> offset);
+        byte n = (val & (0xffL << offset)) >> offset;
+        EEPROM.write(i, n);
     }
 #ifdef DEBUG
     Serial.print("set_value: ");
-    Serial.println(val);
+    Serial.println(val, HEX);
 #endif /* DEBUG */
 }
 
@@ -139,7 +141,7 @@ long get_code(decode_results *ptr) {
     long val = ptr->value;
 #ifdef DEBUG
     Serial.print("get_code: ");
-    Serial.println(val);
+    Serial.println(val, HEX);
 #endif /* DEBUG */
     return val;
 }
