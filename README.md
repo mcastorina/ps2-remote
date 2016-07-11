@@ -15,7 +15,7 @@ Arduino Libraries:
 
 ##Status
 - [x] Working prototype on breadboard
-- [ ] Transfer off of Arduino board
+- [x] Transfer off of Arduino board
 - [ ] Design PCB
 - [ ] Etch PCB
 - [ ] Done!
