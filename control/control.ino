@@ -14,7 +14,8 @@
 #include <IRremote.h>
 #include <Wire.h>
 
-#define DEBUG
+// #define DEBUG
+#define LED_PIN         13      // LED pin
 #define RECV_PIN        11      // IR pin
 #define BUTTON_PIN      10      // Button input (negative logic)
 #define POT_ADDR        0x3e    // I2C address of digital potentiometer
@@ -49,6 +50,8 @@ void setup() {
     Wire.begin();
     /* Button for recording IR code */
     pinMode(BUTTON_PIN, INPUT_PULLUP);
+    /* LED for visual confirmation */
+    pinMode(LED_PIN, OUTPUT);
 #ifdef DEBUG
     /* Make sure the number of codes we have fits in EEPROM */
     if (sizeof(ir_map) / sizeof(ir_map[0])-1 > EEPROM.length() * sizeof(long)) {
@@ -88,6 +91,7 @@ void press_button(boolean down) {
     Wire.write(0);          // command
     Wire.write(val);        // data (0x00 - 0xff)
     Wire.endTransmission();
+    digitalWrite(LED_PIN, down);    // visual confirmation
 #ifdef DEBUG
     Serial.print("press_button: ");
     Serial.println(down);
@@ -101,6 +105,14 @@ void update_codes() {
 #ifdef DEBUG
     Serial.println("updating codes");
 #endif /* DEBUG */
+    /* Blink 3 times */
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(LED_PIN, HIGH);
+        delay(100);
+        digitalWrite(LED_PIN, LOW);
+        delay(100);
+    }
+    /* Update the ir_map */
     for (int index = 0; ir_map[index].fn != NULL; index++) {
         while (!irrecv.decode(&results));           // Wait for signal
         long val = get_code(&results);
