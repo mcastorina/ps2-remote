@@ -22,6 +22,7 @@
 
 void reset(void);
 void power_off(void);
+void blink(int count);
 
 /* Map of IR code to function call */
 static struct {
@@ -105,13 +106,7 @@ void update_codes() {
 #ifdef DEBUG
     Serial.println("updating codes");
 #endif /* DEBUG */
-    /* Blink 3 times */
-    for (int i = 0; i < 3; i++) {
-        digitalWrite(LED_PIN, HIGH);
-        delay(100);
-        digitalWrite(LED_PIN, LOW);
-        delay(100);
-    }
+    blink(3);                                       // Visual cue
     /* Update the ir_map */
     for (int index = 0; ir_map[index].fn != NULL; index++) {
         while (!irrecv.decode(&results));           // Wait for signal
@@ -120,6 +115,7 @@ void update_codes() {
         set_value(index, ir_map[index].ir_code);    // Store result
         delay(100);
         irrecv.resume();
+        blink(1);                                   // Visual cue
 #ifdef DEBUG
         Serial.print("update_code ");
         Serial.print(index);
@@ -177,6 +173,18 @@ long get_code(decode_results *ptr) {
     Serial.println(val, HEX);
 #endif /* DEBUG */
     return val;
+}
+
+/*
+ * Blink LED_PIN count times.
+ */
+void blink(int count) {
+    for (int i = 0; i < count; i++) {
+        digitalWrite(LED_PIN, HIGH);
+        delay(100);
+        digitalWrite(LED_PIN, LOW);
+        delay(100);
+    }
 }
 
 /*
