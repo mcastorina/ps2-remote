@@ -11533,7 +11533,7 @@ type V526-0, grid 2.5 mm</description>
 <instance part="Q1" gate="G$1" x="88.9" y="33.02" rot="R90"/>
 <instance part="R1" gate="G$1" x="40.64" y="68.58" rot="R90"/>
 <instance part="R2" gate="G$1" x="101.6" y="2.54" rot="R90"/>
-<instance part="9V-JACK" gate="G$1" x="-25.4" y="63.5" rot="MR180"/>
+<instance part="9V-JACK" gate="G$1" x="-25.4" y="63.5"/>
 <instance part="GND2" gate="1" x="10.16" y="53.34"/>
 <instance part="GND3" gate="1" x="73.66" y="7.62"/>
 <instance part="GND4" gate="1" x="101.6" y="-7.62"/>
@@ -11572,7 +11572,7 @@ type V526-0, grid 2.5 mm</description>
 <wire x1="25.4" y1="60.96" x2="10.16" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="25.4" y1="68.58" x2="25.4" y2="60.96" width="0.1524" layer="91"/>
 <junction x="25.4" y="60.96"/>
-<pinref part="9V-JACK" gate="G$1" pin="TIP"/>
+<pinref part="9V-JACK" gate="G$1" pin="RING"/>
 <wire x1="-20.32" y1="60.96" x2="-5.08" y2="60.96" width="0.1524" layer="91"/>
 <junction x="-5.08" y="60.96"/>
 </segment>
@@ -11736,13 +11736,6 @@ type V526-0, grid 2.5 mm</description>
 <label x="157.48" y="25.4" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$8" class="1">
-<segment>
-<pinref part="9V-JACK" gate="G$1" pin="RING"/>
-<wire x1="-20.32" y1="66.04" x2="-20.32" y2="73.66" width="0.1524" layer="91"/>
-<pinref part="JP5" gate="A" pin="2"/>
-</segment>
-</net>
 <net name="IR" class="0">
 <segment>
 <pinref part="PNA4601M" gate="1" pin="1"/>
@@ -11809,6 +11802,13 @@ type V526-0, grid 2.5 mm</description>
 <pinref part="U1" gate="A" pin="PC4"/>
 <wire x1="149.86" y1="30.48" x2="154.94" y2="30.48" width="0.1524" layer="91"/>
 <label x="157.48" y="30.48" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="N$7" class="1">
+<segment>
+<pinref part="9V-JACK" gate="G$1" pin="TIP"/>
+<pinref part="JP5" gate="A" pin="2"/>
+<wire x1="-20.32" y1="66.04" x2="-20.32" y2="73.66" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>

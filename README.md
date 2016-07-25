@@ -17,7 +17,7 @@ Arduino Libraries:
 - [x] Working prototype on breadboard
 - [x] Transfer off of Arduino board
 - [x] Design PCB
-- [ ] Etch PCB
+- [x] Etch PCB
 - [ ] Done!
 
 ##Future Goals
