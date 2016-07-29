@@ -18,9 +18,16 @@ Arduino Libraries:
 - [x] Transfer off of Arduino board
 - [x] Design PCB
 - [x] Etch PCB
-- [ ] Done!
+- [x] Done!
+
+![PS2 Remote Demo](https://raw.githubusercontent.com/mcastorina/ps2-remote/master/images/demo.gif)
 
 ##Future Goals
 This project converts any button into an IR controlled button, however
 it requires soldering and electrical knowledge to do so. A future goal
 is to simplify the process to allow anyone to convert the buttons.
+
+##Future Considerations
+Next time I would use a MUX instead of resistance between the button
+terminals. That way I could have a true open / close circuit which is
+much cleaner than using resistance.
