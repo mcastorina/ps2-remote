@@ -49,6 +49,7 @@ void setup() {
     /* Setup IR receiver and I2C */
     irrecv.enableIRIn();
     Wire.begin();
+    press_button(false);
     /* Button for recording IR code */
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     /* LED for visual confirmation */
