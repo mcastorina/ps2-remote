@@ -12,13 +12,12 @@
  */
 #include <EEPROM.h>
 #include <IRremote.h>
-#include <Wire.h>
 
 // #define DEBUG
 #define LED_PIN         13      // LED pin
 #define RECV_PIN        11      // IR pin
 #define BUTTON_PIN      10      // Button input (negative logic)
-#define POT_ADDR        0x3e    // I2C address of digital potentiometer
+#define SWITCH_PIN      9       // Digital switch control (normally open)
 
 void reset(void);
 void power_off(void);
@@ -46,9 +45,9 @@ void setup() {
     while (!Serial);
 #endif /* DEBUG */
 
-    /* Setup IR receiver and I2C */
+    /* Setup IR receiver and digital switch */
     irrecv.enableIRIn();
-    Wire.begin();
+    pinMode(SWITCH_PIN, OUTPUT);
     press_button(false);
     /* Button for recording IR code */
     pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -88,11 +87,7 @@ void loop() {
  * I2C.
  */
 void press_button(boolean down) {
-    int val = 0xff * down;  // low val = high resistance
-    Wire.beginTransmission(POT_ADDR);
-    Wire.write(0);          // command
-    Wire.write(val);        // data (0x00 - 0xff)
-    Wire.endTransmission();
+    digitalWrite(SWITCH_PIN, down);
     digitalWrite(LED_PIN, down);    // visual confirmation
 #ifdef DEBUG
     Serial.print("press_button: ");
