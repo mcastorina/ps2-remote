@@ -20,7 +20,7 @@ Arduino Libraries:
 - [x] Transfer off of Arduino board
 - [x] Design PCB
 - [x] Order PCB
-- [ ] Done!
+- [x] Done!
 
 ##Future Goals
 This project converts any button into an IR controlled button, however
